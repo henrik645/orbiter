@@ -3,27 +3,36 @@ G = 6.37e-11
 import math, pygame, time, sys
 from Vec2 import *
 
-# pygame.init()
-# screen = pygame.display.set_mode((640, 480))
-# pixels = pygame.PixelArray(screen)
+pygame.init()
+width, height = 640, 480
+screen = pygame.display.set_mode((width, height))
+pixels = pygame.PixelArray(screen)
+size_factor = 50000
 
 class Ship():
-    def __init__(self, pos, mass, radius=0, force=Vec2(0, 0)):
+    def __init__(self, pos, mass, radius=1, force=Vec2(0, 0), velocity=Vec2(0, 0), acceleration=Vec2(0, 0), name="Ship"):
         self.pos = pos
         self.mass = mass
         self.force = force
         self.radius = radius
+        self.velocity = velocity
+        self.acceleration = acceleration
+        self.name = name
     
     def add_force(self, vector):
-        #self.force = vector_add(self.force, vector)
-        self.force.add(vector)
+        self.force = self.force.plus(vector)
     
     def update_pos(self):
-        y_acceleration = self.force.x / self.mass
-        x_acceleration = self.force.y / self.mass
-        acceleration = math.sqrt(y_acceleration ** 2 + x_acceleration ** 2)
-        self.pos[0] += x_acceleration
-        self.pos[1] += y_acceleration
+        self.acceleration = self.force.divideWith(self.mass)
+        #acceleration = math.sqrt(y_acceleration ** 2 + x_acceleration ** 2)
+        print(self.name)
+        print("Acceleration:", self.acceleration.x, self.acceleration.y)
+        print("Velocity:", self.velocity.x, self.velocity.y)
+        self.velocity = self.velocity.plus(self.acceleration)
+        print("Velocity:", self.velocity.x, self.velocity.y)
+        self.pos[0] += self.velocity.x
+        self.pos[1] += self.velocity.y
+        print("")
 
 class Planet(Ship):
     def __init__(self, name, pos, mass, radius):
@@ -41,32 +50,25 @@ player_mass = 15000
 masses = [5.97e24, 7.34e22]
 
 earth = Planet("Earth", [2, 2], 5.97e24, 6378000)
-#moon = Planet("Moon", [2, 2], 7.34e22, 1737000)
-# mars = Planet("Mars", [3, 3], 7.34e22, 6378000)
-# apollo = Planet("LEM", [3, 2], 15000, 10)
-# man = Planet("Human", [3, 2], 70, 2)
-ship = Ship(pos=[2, 100000], mass=15000)
-# ship.add_force([-2, 0])
-# ship.add_force([3, 0])
-ships = [earth, ship]
+ship = Ship(pos=[2, 7078000], mass=15000)
+moon = Planet("Moon", [2, -8078000], 7.34e22, 1737000)
+ships = [earth, ship, moon]
+ship.add_force(Vec2(110000000, 0))
+moon.add_force(Vec2(-5.37e+26, 0))
 while True:
-    # for event in pygame.event.get():
-        # if event.type == pygame.QUIT:
-            # sys.exit()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
     screen.fill((255, 255, 255)) #Fills screen with white
-    ship.add_force(Vec2(0, 2500000))
     for planet in ships:
         for planet2 in ships:
             if not planet == planet2:
-                force_magnitude = G * planet.mass * planet2.mass / (distance(planet, planet2) + planet.radius + planet2.radius) ** 2
-                # if not planet.pos[1] - planet2.pos[1] == 0:
-                    # force_ratio = math.fabs(planet.pos[0] - planet2.pos[0]) / math.fabs(planet.pos[1] - planet2.pos[1])
-                    # force_angle = math.atan(force_ratio)
-                    # force = [math.sin(force_angle) * force_magnitude, math.cos(force_angle) * force_magnitude]
-                # else:
-                    # force = [force_magnitude, 0]
-                force = Vec2(planet2.pos[1] - planet.pos[1], planet2.pos[0] - planet.pos[0])
+                force_magnitude = G * planet.mass * planet2.mass / distance(planet, planet2) ** 2
+                print("Force magnitude:", force_magnitude)
+                force = Vec2(planet2.pos[0] - planet.pos[0], planet2.pos[1] - planet.pos[1])
+                print("Vector:", force.x, force.y)
                 force.normalize()
+                print("Normalized:", force.x, force.y)
                 force.multiply(force_magnitude)
                 if hasattr(planet, "name") and hasattr(planet2, "name"):
                     print(planet.name, " and ", planet2.name, " is: ", force.x, force.y)
@@ -80,11 +82,22 @@ while True:
 
     print("Ship force:", ship.force.x / ship.mass, ship.force.y / ship.mass)
     print("Distance:", distance(earth, ship))
+    print("Velocity:", ship.velocity.x, ship.velocity.y)
+    print("Earth Velocity:", earth.velocity.x, earth.velocity.y)
+    print("Earth acceleration:", earth.acceleration.x, earth.acceleration.y)
+    print("Earth force:", earth.force.x, earth.force.y)
     for planet in ships:
         planet.update_pos()
         planet.force = Vec2(0, 0)
-        #pixels[round(planet.pos[0] / 10000), round(planet.pos[1] / 10000)] = (0, 0, 0) #Draws a dot where the planet should be.
+        print(math.ceil(planet.pos[0] / size_factor) + round(width / 2))
+        print(math.ceil(planet.pos[1] / size_factor) + round(height / 2))
+        print(math.ceil(planet.radius / size_factor))
+        #if isinstance(planet, Planet) and math.ceil(planet.radius / size_factor) > 1:
+        pygame.draw.circle(screen, (0, 0, 0), [math.ceil(planet.pos[0] / size_factor) + round(width / 2), math.ceil(planet.pos[1] / size_factor) + round(height / 2)], math.ceil(planet.radius / size_factor)) #Draws a dot where the planet should be.
+        #else:
+            #pixels[math.ceil(planet.pos[0] / size_factor) + round(width / 2), math.ceil(planet.pos[1] / size_factor) + round(height / 2)] = (0, 0, 0)
+    pygame.display.flip()
     print("Position:", ship.pos)
-    #ship.force = Vec2(0, 0)
     print("")
-    time.sleep(1)
+    #time.sleep(1)
+    time.sleep(0.004)

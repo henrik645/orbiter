@@ -84,11 +84,11 @@ class Vec2():
             self.x /= denom
             self.y /= denom
     
-    def dividedWith(self, denom):
+    def divideWith(self, denom):
         if isinstance(denom, Vec2):
-            return Vec2(this.x / denom.x, this.y / denom.y)
+            return Vec2(self.x / denom.x, self.y / denom.y)
         else:
-            return Vec2(this.x / denom, this.y / denom)
+            return Vec2(self.x / denom, self.y / denom)
     
     def dot(self, vec):
         return self.x * vec.x + self.y * vec.y
