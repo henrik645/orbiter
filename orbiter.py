@@ -1,13 +1,20 @@
 G = 6.37e-11
+size_factor = 50000
+TICKS_PER_SEC = 250
 
 import math, pygame, time, sys
 from Vec2 import *
 
 pygame.init()
+icon = pygame.image.load("icon.png")
+pygame.display.set_caption("Orbiter v0.1 Alpha", "Orbiter") #Sets caption and icon caption (for smaller displays)
+#icon.set_colorkey((255, 255, 255)) #Sets transparency of the icon to the white areas.
+#icon.set_alpha(255)
+pygame.display.set_icon(icon)
 width, height = 640, 480
 screen = pygame.display.set_mode((width, height))
 pixels = pygame.PixelArray(screen)
-size_factor = 50000
+clock = pygame.time.Clock()
 
 class Ship():
     def __init__(self, pos, mass, radius=1, force=Vec2(0, 0), velocity=Vec2(0, 0), acceleration=Vec2(0, 0), name="Ship"):
@@ -99,5 +106,8 @@ while True:
     pygame.display.flip()
     print("Position:", ship.pos)
     print("")
+    print("FPS:", clock.get_fps())
+    print("")
     #time.sleep(1)
-    time.sleep(0.004)
+    #time.sleep(0.004)
+    clock.tick(TICKS_PER_SEC) #Ticks the clock. Also sets max framerate
