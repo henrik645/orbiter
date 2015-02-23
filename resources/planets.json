@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Earth",
+        "mass": 5.97e24,
+        "radius": 6.378e6,
+        "position": [0, 0],
+        "color": [39, 133, 160]
+    },
+    {
+        "name": "Moon",
+        "mass": 7.34e22,
+        "radius": 1.737e6,
+        "position": [0, -8078000],
+        "color": [140, 140, 140],
+        "force": [-5.37e+26, 0]
+    }
+]
